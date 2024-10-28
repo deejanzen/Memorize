@@ -7,69 +7,50 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    var emojis = ["🐻‍❄️","🐽","🐔","🦑" ,"🦞", "🦐" ,"🐠", "🐳","🦈","🦭"]
-    @State var emojiCount = 3
+struct EmojiMemoryGameView: View {
+    @ObservedObject var viewModel: EmojiMemoryGame
     var body: some View {
         VStack {
             ScrollView{
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
-                    ForEach(emojis[0..<emojiCount], id: \.self, content: { emoji in
-                        CardView(content: emoji).aspectRatio(2/3, contentMode: .fit)
-                    })
+                    ForEach(viewModel.cards) { card in
+                        CardView(card: card).aspectRatio(2/3, contentMode: .fit)
+                            .font(.largeTitle)
+                            .onTapGesture {
+                                viewModel.choose(card)
+                            }
+                        
+                    }
                 }
             }.foregroundColor(.red)
-            Spacer()
-            HStack {
-                add
-                Spacer()
-                remove
-            }
-            .font(.largeTitle)
-            .padding()
+            
+            
         }
         .padding()
         
     }
-    var add: some View {
-        Button {
-            if emojiCount < emojis.count {
-                emojiCount += 1
-            }
-        } label: {
-            Image(systemName: "plus.app.fill")
-        }
-    }
-    var remove: some View {
-        Button {
-            if emojiCount > 1 {
-                emojiCount -= 1
-            }
-        } label: {
-            Image(systemName: "minus.square.fill")
-        }
-    }
 }
 
 struct CardView: View {
-    var content: String
-    @State var isFaceUp = true
+    let card: MemoryGame<String>.Card
+    
     var body: some View {
         ZStack {
             let shape = RoundedRectangle(cornerRadius: 20)
-            if isFaceUp {
+            if card.isFaceUp && !card.isMatched{
                 shape.fill().foregroundColor(.white)
                 shape.strokeBorder(lineWidth: 3)
-                Text(content)
+                Text(card.content)
+            } else if card.isMatched {
+                shape.opacity(0)
             } else {
                 shape.fill()
             }
-        }.onTapGesture {
-            isFaceUp = !isFaceUp
-        }.font(.largeTitle)
+        }
     }
 }
 
 #Preview {
-    ContentView()
+    let game = EmojiMemoryGame()
+    EmojiMemoryGameView(viewModel: game).preferredColorScheme(.light)
 }
