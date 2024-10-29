@@ -10,24 +10,20 @@ import SwiftUI
 struct EmojiMemoryGameView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
     var body: some View {
-        VStack {
-            ScrollView{
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
-                    ForEach(viewModel.cards) { card in
-                        CardView(card: card).aspectRatio(2/3, contentMode: .fit)
-                            .font(.largeTitle)
-                            .onTapGesture {
-                                viewModel.choose(card)
-                            }
-                        
-                    }
+        ScrollView{
+            LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
+                ForEach(viewModel.cards) { card in
+                    CardView(card: card)
+                        .aspectRatio(2/3, contentMode: .fit)
+                        .onTapGesture {
+                            viewModel.choose(card)
+                        }
+                    
                 }
-            }.foregroundColor(.red)
-            
-            
+            }
         }
+        .foregroundColor(.red)
         .padding()
-        
     }
 }
 
@@ -35,19 +31,32 @@ struct CardView: View {
     let card: MemoryGame<String>.Card
     
     var body: some View {
-        ZStack {
-            let shape = RoundedRectangle(cornerRadius: 20)
-            if card.isFaceUp && !card.isMatched{
-                shape.fill().foregroundColor(.white)
-                shape.strokeBorder(lineWidth: 3)
-                Text(card.content)
-            } else if card.isMatched {
-                shape.opacity(0)
-            } else {
-                shape.fill()
+        GeometryReader(content: { geometry in
+            ZStack {
+                let shape = RoundedRectangle(cornerRadius: MagicNumbers.rrCornerRadius)
+                if card.isFaceUp {
+                    shape.fill().foregroundColor(.white)
+                    shape.strokeBorder(lineWidth: MagicNumbers.strokeWidth)
+                    Text(card.content).font(font(of: geometry.size))
+                } else if card.isMatched {
+                    shape.opacity(0)
+                } else {
+                    shape.fill()
+                }
             }
-        }
+        })
     }
+    
+    private func font(of size: CGSize) -> Font {
+        Font.system(size: min(size.width, size.height) * MagicNumbers.fontScale)
+    }
+    
+    private struct MagicNumbers {
+        static let fontScale: CGFloat = 0.8
+        static let rrCornerRadius: CGFloat = 20
+        static let strokeWidth: CGFloat = 3
+    }
+    
 }
 
 #Preview {
