@@ -12,7 +12,7 @@ class EmojiMemoryGame: ObservableObject{
     typealias Card = MemoryGame<String>.Card
     
     static func createMemoryGame() -> MemoryGame<String> {
-        MemoryGame<String>(numberOfPairsOfCards: 7){ pairIndex in
+        MemoryGame<String>(numberOfPairsOfCards: 10){ pairIndex in
             emojis[pairIndex]
         }
     }

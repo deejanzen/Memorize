@@ -8,19 +8,10 @@
 import SwiftUI
 
 struct EmojiMemoryGameView: View {
-    @ObservedObject var viewModel: EmojiMemoryGame
+    @ObservedObject var game: EmojiMemoryGame
     var body: some View {
-        ScrollView{
-            LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
-                ForEach(viewModel.cards) { card in
-                    CardView(card: card)
-                        .aspectRatio(2/3, contentMode: .fit)
-                        .onTapGesture {
-                            viewModel.choose(card)
-                        }
-                    
-                }
-            }
+        AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
+            CardView(card: card).onTapGesture { game.choose(card) }.padding(4)
         }
         .foregroundColor(.red)
         .padding()
@@ -37,6 +28,7 @@ struct CardView: View {
                 if card.isFaceUp {
                     shape.fill().foregroundColor(.white)
                     shape.strokeBorder(lineWidth: MagicNumbers.strokeWidth)
+                    Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110-90)).padding(4).opacity(0.5)
                     Text(card.content).font(font(of: geometry.size))
                 } else if card.isMatched {
                     shape.opacity(0)
@@ -52,8 +44,8 @@ struct CardView: View {
     }
     
     private struct MagicNumbers {
-        static let fontScale: CGFloat = 0.8
-        static let rrCornerRadius: CGFloat = 20
+        static let fontScale: CGFloat = 0.75
+        static let rrCornerRadius: CGFloat = 10
         static let strokeWidth: CGFloat = 3
     }
     
@@ -61,5 +53,5 @@ struct CardView: View {
 
 #Preview {
     let game = EmojiMemoryGame()
-    EmojiMemoryGameView(viewModel: game).preferredColorScheme(.light)
+    EmojiMemoryGameView(game: game).preferredColorScheme(.light)
 }
